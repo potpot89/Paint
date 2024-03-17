@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="author" content="Jamila Zini" />
+    <title>Paint it!</title>
+    <link rel="stylesheet" href="styles.css" />
+    <script src="script.js" defer></script>
+  </head>
+  <body>
+    <div id="canvas-container">
+      <canvas id="my-canvas" width="600" height="400"></canvas>
+    </div>
+
+    <!--select the color of the brush-->
+    <input type="color" value="#A61717" id="brush-color" />
+    <!--select the dimension of the brush. Value sets its starting dimension-->
+    <input type="range" min="3" max="20" value="5" id="brush-width" />
+  </body>
+</html>
