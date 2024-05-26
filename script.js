@@ -1,63 +1,94 @@
-let canvas = document.querySelector(`#my-canvas`); //intercept the canvas
-let context = canvas.getContext(`2d`); //set canvas environment to 2d
-let brushColor = document.querySelector(`#brush-color`); //intercept the input color
-let brushWidth = document.querySelector(`#brush-width`); //intercept the input range
+let canvas = document.querySelector('#my-canvas');
+let ctx = canvas.getContext('2d');
+ctx.fillStyle = 'white';
+ctx.fillRect(0,0,canvas.width,canvas.height);
 
-//logs in the console the coordinates of where you click in the canvas
-/*canvas.addEventListener(`click`, (e) => {
-  console.log(e.offsetX, e.offsetY);
-});*/
+let penColor = document.querySelector('#pen-color');
+let penWidth = document.querySelector('#pen-width');
+let saveButton = document.querySelector('#save');
+let clearButton = document.querySelector('#clear');
+let output = document.querySelector('#output');
 
-//canvas.addEventListener(`mousemove`, (e) => {  console.log(e.offsetX, e.offsetY); //logs in the console the coordinates of where the mouse runs in the canvas
-//draw();});
-
-//create an object that is the mouse location and updates the coords of the mouse based on where it is
 let mouseLocation = {
-  //set a property that will lately prevent to draw in set conditions
   canDraw: false,
-  //current positions
   x: 0,
   y: 0,
-  //previous positions
   lastX: 0,
-  lastY: 0,
-};
+  lastY: 0
+}
 
-//adjust the previos addEventListener, accordingly
-canvas.addEventListener(`mousemove`, (e) => {
+// Quando l'utente muove il mouse, prendiamo le coordinate x e y del puntatore rispetto al canvas (offsetX, offsetY)
+// Le coordinate del movimento precedente vengono salvate come lastX e lastY
+canvas.addEventListener('mousemove', (e) => {
+  // console.log(e.offsetX, e.offsetY);
   mouseLocation.lastX = mouseLocation.x;
   mouseLocation.lastY = mouseLocation.y;
-  (mouseLocation.x = e.offsetX), (mouseLocation.y = e.offsetY);
+  mouseLocation.x = e.offsetX;
+  mouseLocation.y = e.offsetY;
   draw();
 });
 
-//set event listeners so that when the mouse is clicked, you can draw
-canvas.addEventListener(`mousedown`, (e) => {
+// Quando l'utente tiene cliccato il pulsante del mouse, cambiamo canDraw a true per iniziare a disegnare
+canvas.addEventListener('mousedown', (e) => {
   mouseLocation.canDraw = true;
-});
-
-//when you release the click, you cannot draw
-canvas.addEventListener(`mouseup`, (e) => {
+  // console.log('click')
+})
+// Quando l'utente rilascia il pulsante o esce dal canvas, rimettiamo canDraw a false
+canvas.addEventListener('mouseup', (e) => {
   mouseLocation.canDraw = false;
-});
-
-//prevent bugs that could occur when going out the canvas and back in, while keeping the click button pressed
-canvas.addEventListener(`mouseout`, (e) => {
+  // console.log('release')
+})
+canvas.addEventListener('mouseout', (e) => {
+  // console.log('out')
   mouseLocation.canDraw = false;
-});
+})
+
+saveButton.addEventListener('click', saveImg);
+clearButton.addEventListener('click', clearCanvas);
 
 function draw() {
-  //if the mouse is clicked and dragged
-  if (mouseLocation.canDraw === true) {
-    //do an action from the previous location to the last one
-    context.moveTo(mouseLocation.lastX, mouseLocation.lastY);
-    context.lineTo(mouseLocation.x, mouseLocation.y);
-    //set a color
-    context.strokeStyle = brushColor.value;
-    //set a dimension for the brush
-    context.lineWidth = brushWidth.value;
-
-    //draw a line
-    context.stroke();
+  if(mouseLocation.canDraw) {
+    ctx.beginPath();
+    ctx.moveTo(mouseLocation.lastX, mouseLocation.lastY);
+    ctx.lineTo(mouseLocation.x, mouseLocation.y);
+    ctx.strokeStyle = penColor.value;
+    ctx.lineWidth = penWidth.value;
+    ctx.stroke();
+    ctx.closePath();
   }
+}
+
+function saveImg() {
+  // Prendiamo i dati che compongono l'immagine nel canvas e li convertiamo in formato JPEG, codificato in base64
+  let dataURL = canvas.toDataURL('image/jpeg');
+  // Se non specifico il formato, scarico un png
+  // let dataURL = canvas.toDataURL();
+  // console.log(dataURL);
+
+  let imgContainer = document.createElement('div');
+  imgContainer.classList.add('saved-item-container');
+  
+  let img = document.createElement('img');
+  // Passo la stringa di dati direttamente all'attributo src dell'immagine
+  img.src = dataURL;
+  imgContainer.append(img);
+  
+  let imgDownload = document.createElement('a');
+  imgDownload.textContent = 'Download';
+  // Passo la stringa di dati all'attributo href del link
+  imgDownload.href = dataURL;
+  // Aggiungo l'attributo download, con la specifica del nome da dare al file, per poterlo scaricare al click del pulsante
+  imgDownload.setAttribute('download', 'my-painting.jpg');
+  imgContainer.append(imgDownload)
+  imgContainer.addEventListener('click', () => {
+    imgContainer.remove();
+  })
+  
+  output.prepend(imgContainer);
+}
+
+function clearCanvas() {
+  // Aggiungiamo un rettangolo bianco su tutto il canvas
+  ctx.fillStyle = 'white';
+  ctx.fillRect(0,0,canvas.width,canvas.height);
 }
